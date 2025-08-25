@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="RMC Commercial Team - Quick access to Daily Counting, Stock Counting, Employee Attendance, and Dashboard" />
+  <meta name="keywords" content="RMC, commercial, daily counting, stock counting, attendance, dashboard" />
+  <meta name="author" content="RMC Commercial Team" />
+  <meta name="theme-color" content="#667eea" />
+  <title>RMC Commercial Team</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg1:#667eea;
+      --bg2:#764ba2;
+      --card:#ffffffee;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#4CAF50;
+      --primary-2:#45a049;
+      --radius:18px;
+      --shadow-1:0 10px 30px rgba(0,0,0,.10);
+      --shadow-2:0 18px 48px rgba(0,0,0,.14);
+      --dur-fast:.18s;
+      --dur:.32s;
+      --dur-slow:.6s;
+    }
+
+    /* Dark theme variables */
+    html[data-theme="dark"]{
+      --bg1:#1f1b56;
+      --bg2:#2d1e6f;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;scroll-behavior:smooth}
+    body{
+      font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      min-height:100dvh;
+      margin:0;
+      color:var(--text);
+      background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 50%, var(--bg1) 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 14s ease-in-out infinite;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* animated soft particles background */
+    body::before{
+      content:'';
+      position:fixed;inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(1200px 600px at -10% -20%, rgba(255,255,255,.06), transparent 40%),
+        radial-gradient(800px 400px at 110% 120%, rgba(255,255,255,.05), transparent 45%),
+        radial-gradient(300px 300px at 20% 50%, rgba(255,255,255,.10) 2px, transparent 2px),
+        radial-gradient(250px 250px at 80% 20%, rgba(255,255,255,.08) 1px, transparent 1px),
+        radial-gradient(300px 300px at 40% 80%, rgba(255,255,255,.06) 1.5px, transparent 1.5px);
+      background-size: cover, cover, 300px 300px, 200px 200px, 250px 250px;
+      animation: floatParticles 24s linear infinite;
+      z-index:0;
+    }
+
+    /* container card */
+    .main-content{
+      position:relative;
+      z-index:1;
+      max-width: 720px;
+      margin: clamp(16px,6vh,48px) auto calc(56px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, #f9fafb 0%, #eef2f7 100%);
+      border-radius: var(--radius);
+      padding: clamp(18px, 4vw, 28px);
+      box-shadow: var(--shadow-1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.55);
+    }
+    html[data-theme="dark"] .main-content{
+      background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 10px 36px rgba(0,0,0,.45);
+    }
+
+    /* Theme toggle */
+    .theme-toggle{
+      position:absolute; top:12px; right:12px;
+      width:38px; height:38px; border-radius:10px;
+      display:grid; place-items:center; cursor:pointer;
+      border:1px solid rgba(0,0,0,.08);
+      background:#ffffffcc;
+      color:#374151;
+      transition: transform var(--dur), box-shadow var(--dur), background var(--dur);
+    }
+    .theme-toggle:hover{ transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,.12); }
+    .theme-toggle:active{ transform: translateY(0); }
+    .theme-toggle:focus-visible{ outline:3px solid rgba(99,102,241,.5); outline-offset:3px; }
+    html[data-theme="dark"] .theme-toggle{
+      background:#0b1220cc; color:#e5e7eb; border-color: rgba(255,255,255,.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,.35);
+    }
+
+    .home-screen{ display:flex;flex-direction:column;align-items:center;text-align:center; }
+
+    .app-icon{
+      width:140px;height:140px;border-radius:28px;
+      display:grid;place-items:center;
+      background: linear-gradient(145deg, #ffffff 0%, #f1f4f9 70%, #ffffff 100%);
+      border: 3px solid rgba(255,255,255,.9);
+      box-shadow:
+        0 12px 26px rgba(0,0,0,.10),
+        inset 0 1px 2px rgba(255,255,255,.95);
+      margin: 8px 0 24px;
+      position:relative;
+      overflow:hidden;
+      will-change: transform;
+      transition: transform var(--dur) cubic-bezier(.2,.8,.2,1), box-shadow var(--dur);
+      animation: iconFloat 7s ease-in-out infinite;
+      touch-action: manipulation;
+    }
+    html[data-theme="dark"] .app-icon{
+      background: linear-gradient(145deg, #0b1220, #0d1325);
+      border-color: rgba(255,255,255,.12);
+      box-shadow: 0 12px 26px rgba(0,0,0,.35), inset 0 1px 2px rgba(255,255,255,.06);
+    }
+    .app-icon::after{
+      content:'';
+      position:absolute;inset:-2px;border-radius:30px;pointer-events:none;
+      background: conic-gradient(from 0deg,
+        rgba(102,126,234,.28),
+        rgba(118,75,162,.28),
+        rgba(76,175,80,.28),
+        rgba(255,107,107,.28),
+        rgba(102,126,234,.28));
+      filter: blur(18px) saturate(1.05);
+      mix-blend-mode: screen;
+      opacity:.0;
+      transition: opacity var(--dur);
+      animation: rotateGlow 10s linear infinite;
+    }
+    .app-icon:hover{ transform: translateY(-4px) scale(1.03); box-shadow: var(--shadow-2); }
+    .app-icon:hover::after{ opacity:.85; }
+    .app-icon:active{ transform: translateY(0) scale(.98); }
+
+    .app-icon img{
+      width:84%;height:84%;object-fit:contain;border-radius:16px;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,.10));
+      transition: transform var(--dur);
+    }
+    .app-icon:hover img{ transform: scale(1.02); }
+
+    /* fallback icon styling if image fails */
+    .app-icon .fallback-icon{
+      font-size: clamp(40px, 7vw, 58px);
+      color: #2c3e50;
+      transition: transform var(--dur);
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,.1));
+    }
+    .app-icon:hover .fallback-icon{ transform: scale(1.03); }
+    html[data-theme="dark"] .app-icon .fallback-icon{ color: #e5e7eb; }
+
+    .app-name{
+      font-size: clamp(18px, 2.6vw, 22px);
+      font-weight:600;color:#111827;margin-bottom:6px;
+    }
+    html[data-theme="dark"] .app-name{ color:#f3f4f6; }
+
+    .app-description{
+      font-size:14px;color:var(--muted);
+      margin-bottom:22px;max-width:520px;line-height:1.55;
+    }
+
+    .action-buttons{
+      display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+      margin-bottom: 6px;
+    }
+    .action-buttons .launch-button{ min-width: 180px; }
+
+    .launch-button{
+      position:relative;
+      background: linear-gradient(45deg, var(--primary), var(--primary-2));
+      color:#fff;border:none;border-radius:28px;
+      padding: 14px 28px;
+      font-size:15px;font-weight:600;
+      cursor:pointer;display:inline-flex;align-items:center;gap:10px;
+      box-shadow: 0 6px 22px rgba(76,175,80,.28);
+      transition: transform var(--dur), box-shadow var(--dur), opacity var(--dur);
+      touch-action: manipulation;
+    }
+    .launch-button:hover{ transform: translateY(-2px); box-shadow: 0 10px 30px rgba(76,175,80,.34); }
+    .launch-button:active{ transform: translateY(0); }
+    .launch-button:focus-visible{
+      outline: 3px solid rgba(76,175,80,.5);
+      outline-offset: 4px;
+    }
+
+    /* icon hover/transition */
+    .launch-button .fa-list-check, .launch-button .fa-boxes-stacked, .launch-button .fa-user-check{ transition: transform var(--dur-fast); }
+    .launch-button:hover .fa-list-check, .launch-button:hover .fa-boxes-stacked, .launch-button:hover .fa-user-check{ transform: translateX(2px); }
+
+    /* shimmer */
+    .launch-button::after{
+      content:'';
+      position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+      transform: translateX(-120%);
+      opacity:0;
+      transition: opacity var(--dur);
+    }
+    .launch-button:hover::after{ opacity:1; animation: loadingSweep 1.2s ease-in-out; }
+
+    /* ripple on press */
+    .btn-effect{ position:relative; overflow:hidden; }
+    .btn-effect::before{
+      content:'';
+      position:absolute;top:var(--y,50%);left:var(--x,50%);
+      width:0;height:0;border-radius:50%;
+      transform: translate(-50%,-50%);
+      background: rgba(255,255,255,.35);
+      transition: width .55s ease, height .55s ease;
+      pointer-events:none;
+    }
+    .btn-effect:active::before{ width:300px;height:300px; }
+
+    /* launch loading state */
+    .launch-button.loading{
+      background: linear-gradient(45deg, #81C784, #66BB6A);
+      pointer-events:none;opacity:.9;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .launch-button.loading .fa-list-check,
+    .launch-button.loading .fa-boxes-stacked,
+    .launch-button.loading .fa-user-check{ animation: spin 1s linear infinite; }
+
+    .app-grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(60px,1fr));
+      gap: 18px;
+      width: 100%;
+      max-width: 420px;
+      margin: 28px auto 6px;
+    }
+    .grid-item{ display:flex;flex-direction:column;align-items:center;gap:8px; }
+    .grid-icon{
+      width:62px;height:62px;border-radius:16px;
+      display:grid;place-items:center;
+      background: linear-gradient(45deg, #9c27b0, #673ab7);
+      color:#fff;font-size:20px;
+      box-shadow: 0 6px 18px rgba(103,58,183,.35);
+      transition: transform var(--dur-fast), box-shadow var(--dur-fast);
+      position:relative;overflow:hidden;cursor:pointer;
+      touch-action: manipulation;
+    }
+    .grid-icon:hover{ transform: translateY(-2px); box-shadow: 0 10px 26px rgba(103,58,183,.42); }
+    .grid-icon:active::before{ width:120px;height:120px; }
+    .grid-icon::before{
+      content:'';
+      position:absolute;top:50%;left:50%;
+      width:0;height:0;border-radius:50%;
+      transform:translate(-50%,-50%);
+      background:rgba(255,255,255,.22);
+      transition: width .28s ease, height .28s ease;
+      pointer-events:none;
+    }
+    .grid-label{ font-size:12px;color:#374151; }
+    html[data-theme="dark"] .grid-label{ color:#cbd5e1; }
+
+    /* progress bar */
+    .progress-bar{
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      z-index: 10000; transition: width .35s ease;
+    }
+
+    /* Loading overlay */
+    .loading-overlay{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+      z-index: 9999; opacity:0; visibility:hidden; transition: opacity var(--dur), visibility var(--dur);
+    }
+    .loading-overlay.active{ opacity:1; visibility:visible; }
+    .loading-box{
+      display:flex;flex-direction:column;align-items:center;gap:14px;color:#fff;text-align:center;
+      transform: translateY(8px); animation: slideUp var(--dur-slow) ease forwards;
+    }
+    .loading-spinner{
+      width:58px;height:58px;border:4px solid rgba(255,255,255,.28);border-top-color:#fff;border-radius:50%;
+      animation: spin 1s linear infinite;
+    }
+    .loading-text{ font-size:16px;font-weight:500; }
+
+    /* Modal */
+    .modal{
+      position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+      background: rgba(15,23,42,.44); z-index: 9998;
+    }
+    .modal.show{ display:flex; }
+    .modal-dialog{
+      width:min(92vw,560px);
+      background:#fff;border-radius:16px;box-shadow: var(--shadow-2);
+      transform: translateY(12px); opacity:0;
+      animation: modalIn .35s ease forwards;
+      color:#374151;
+    }
+    .modal-header{
+      display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #eef2f7;
+    }
+    .modal-title{ font-weight:600; }
+    .modal-close{
+      background:transparent;border:none;font-size:18px;cursor:pointer;color:#6b7280;
+      padding:8px;border-radius:8px;transition: background var(--dur);
+    }
+    .modal-close:hover{ background:#f3f4f6; }
+    .modal-body{ padding:16px 18px; color:inherit; line-height:1.6; white-space:pre-line; }
+
+    html[data-theme="dark"] .modal-dialog{ background:#0b1220; color:#e5e7eb; }
+    html[data-theme="dark"] .modal-header{ border-bottom-color:#172036; }
+    html[data-theme="dark"] .modal-close{ color:#cbd5e1; }
+    html[data-theme="dark"] .modal-close:hover{ background:#0f172a; }
+
+    /* watermark */
+    .watermark{
+      position: fixed; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,.82); color:#fff; display:flex; justify-content:space-between; align-items:center;
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      font-size:12px; z-index: 900;
+    }
+    .watermark-left{ display:flex;flex-direction:column;gap:2px; }
+    .watermark-right{ font-weight:600; color:#9bd2ff; }
+
+    /* Animations */
+    @keyframes gradientShift{
+      0%{ background-position: 0% 50%; }
+      50%{ background-position: 100% 50%; }
+      100%{ background-position: 0% 50%; }
+    }
+    @keyframes floatParticles{
+      0%{ transform: translateY(0) rotate(0deg); }
+      50%{ transform: translateY(-12px) rotate(180deg); }
+      100%{ transform: translateY(0) rotate(360deg); }
+    }
+    @keyframes iconFloat{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-8px); }
+    }
+    @keyframes rotateGlow{ from{ transform: rotate(0deg);} to{transform: rotate(360deg);} }
+    @keyframes spin{ to{ transform: rotate(360deg); } }
+    @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.75} }
+    @keyframes slideUp{ from{ opacity:0; transform: translateY(14px);} to{ opacity:1; transform: translateY(0);} }
+    @keyframes modalIn{ from{ opacity:0; transform: translateY(12px);} to{ opacity:1; transform: translateY(0);} }
+    @keyframes loadingSweep{ from{ transform: translateX(-120%);} to{ transform: translateX(120%);} }
+
+    /* Motion-safe */
+    @media (prefers-reduced-motion: reduce) {
+      *{ animation: none !important; transition: none !important; }
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 480px){
+      .app-icon{ width:108px;height:108px;border-radius:22px; }
+      .launch-button{ padding:12px 22px; font-size:14px; }
+      .action-buttons .launch-button{ flex:1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Progress Bar -->
+  <div class="progress-bar" id="progressBar" aria-hidden="true"></div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay" role="alert" aria-live="polite" aria-busy="true">
+    <div class="loading-box">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <div class="loading-text" id="loadingText">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog" role="document">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Title</div>
+        <button class="modal-close" type="button" id="modalClose" aria-label="Close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">Body</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Theme toggle -->
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <i class="fa-solid fa-moon" id="themeIcon"></i>
+    </button>
+
+    <section class="home-screen" aria-label="Application Launcher">
+      <button class="app-icon btn-effect" id="appIcon" aria-label="Open Daily Counting">
+        <img
+          src="https://synques-cdn.s3.ap-south-1.amazonaws.com/rmchemicals.in/images/rmc-logo.png"
+          alt="RMC Logo"
+          id="logoImg"
+        />
+      </button>
+
+      <h1 class="app-name">RMC Commercial Team</h1>
+      <p class="app-description">Launch Daily Counting, Stock Counting, Employee Attendance, and Dashboard tools in one place.</p>
+
+      <!-- Action buttons: Daily Counting + Stock Counting + Employee Attendance -->
+      <div class="action-buttons">
+        <button class="launch-button btn-effect" id="launchBtn" aria-label="Open Daily Counting">
+          <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+          <span>Daily Counting</span>
+        </button>
+
+        <button class="launch-button btn-effect" id="stockBtn" aria-label="Open Stock Counting">
+          <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+          <span>Stock Counting</span>
+        </button>
+
+        <button class="launch-button btn-effect" id="attendanceBtn" aria-label="Open Employee Attendance Record">
+          <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+          <span>Employee Attendance Record</span>
+        </button>
+      </div>
+
+      <div class="app-grid" role="navigation" aria-label="Quick actions">
+        <div class="grid-item">
+          <div class="grid-icon" data-action="info" role="button" tabindex="0" aria-label="Info">
+            <i class="fas fa-info" aria-hidden="true"></i>
+          </div>
+          <div class="grid-label">Info</div>
+        </div>
+
+        <div class="grid-item">
+          <div class="grid-icon" data-action="settings" role="button" tabindex="0" aria-label="Settings">
+            <i class="fas fa-cog" aria-hidden="true"></i>
+          </div>
+          <div class="grid-label">Settings</div>
+        </div>
+
+        <div class="grid-item">
+          <div class="grid-icon" data-action="help" role="button" tabindex="0" aria-label="Help">
+            <i class="fas fa-question" aria-hidden="true"></i>
+          </div>
+          <div class="grid-label">Help</div>
+        </div>
+
+        <div class="grid-item">
+          <div class="grid-icon" data-action="dashboard" role="button" tabindex="0" aria-label="Dashboard">
+            <i class="fas fa-chart-bar" aria-hidden="true"></i>
+          </div>
+          <div class="grid-label">Dashboard</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Watermark -->
+  <footer class="watermark" aria-label="Watermark">
+    <div class="watermark-left">
+      <div>Department: Commercial Team</div>
+      <div>Modify Admin: Lakshan</div>
+    </div>
+    <div class="watermark-right">
+      <i class="fas fa-building" aria-hidden="true"></i> RMC Commercial
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      'use strict';
+
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZwQrxxXeDnT1llTZb3h7Mj059z4y_3JuKnmQ2p5yIdQXbxttoDblg4coapbSy-gkq/exec';
+      const STOCK_SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbzGxPTe-ex9-JX3r1olSyV5MCAb_RAP01DuMiG_2rUk1K2my89lzP2wLrwVruYmdw47/exec';
+      const ATTENDANCE_URL    = 'https://rmc.timelabs.in/';
+      const DASHBOARD_URL     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxRoqXa5h87pfYymuSXbHsuvR90a6Uu5U8JTa6mIbT4LORwb8mUeSRWqYHH14aWtHpcBIlJgXlRY0e/pubhtml';
+
+      const progressBar = document.getElementById('progressBar');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const loadingText = document.getElementById('loadingText');
+      const launchBtn = document.getElementById('launchBtn');
+      const stockBtn = document.getElementById('stockBtn');
+      const attendanceBtn = document.getElementById('attendanceBtn');
+      const appIcon = document.getElementById('appIcon');
+      const logoImg = document.getElementById('logoImg');
+
+      const modal = document.getElementById('modal');
+      const modalClose = document.getElementById('modalClose');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+
+      // Loading helpers
+      const showLoading = (message = 'Loading...') => {
+        loadingText.textContent = message;
+        loadingOverlay.classList.add('active');
+        progressBar.style.width = '0%';
+        requestAnimationFrame(() => {
+          setTimeout(()=>progressBar.style.width='30%', 120);
+          setTimeout(()=>progressBar.style.width='70%', 520);
+          setTimeout(()=>progressBar.style.width='100%', 1000);
+        });
+      };
+      const hideLoading = () => {
+        setTimeout(()=>{
+          loadingOverlay.classList.remove('active');
+          progressBar.style.width = '0%';
+        }, 400);
+      };
+
+      // Button ripple
+      const setButtonRipple = (el, e) => {
+        const rect = el.getBoundingClientRect();
+        el.style.setProperty('--x', `${e.clientX - rect.left}px`);
+        el.style.setProperty('--y', `${e.clientY - rect.top}px`);
+      };
+
+      // Launching state (per button)
+      const setLaunchingState = (btn, isLaunching, text='Launching...') => {
+        if (!btn) return;
+        if (isLaunching) {
+          btn.classList.add('loading');
+          btn.disabled = true;
+          const span = btn.querySelector('span');
+          if (span) span.textContent = text;
+        } else {
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          const span = btn.querySelector('span');
+          if (!span) return;
+          if (btn.id === 'stockBtn') span.textContent = 'Stock Counting';
+          else if (btn.id === 'attendanceBtn') span.textContent = 'Employee Attendance Record';
+          else span.textContent = 'Daily Counting';
+        }
+      };
+
+      // Modal
+      const openModal = (title, content) => {
+        modalTitle.textContent = title;
+        modalBody.textContent = content; // safe text
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        setTimeout(()=>modalClose.focus(), 50);
+      };
+      const closeModal = () => {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      };
+
+      // Actions (same-tab navigation)
+      const launchApp = () => {
+        setLaunchingState(launchBtn, true, 'Launching...');
+        showLoading('Opening Daily Counting...');
+        setTimeout(()=>{ window.location.href = GOOGLE_SCRIPT_URL; }, 1200);
+      };
+      const launchStock = () => {
+        setLaunchingState(stockBtn, true, 'Launching...');
+        showLoading('Opening Stock Counting...');
+        setTimeout(()=>{ window.location.href = STOCK_SCRIPT_URL; }, 1200);
+      };
+      const launchAttendance = () => {
+        setLaunchingState(attendanceBtn, true, 'Launching...');
+        showLoading('Opening Employee Attendance...');
+        setTimeout(()=>{ window.location.href = ATTENDANCE_URL; }, 1000);
+      };
+      const openInfo = () => {
+        openModal(
+          'RMC Commercial Team',
+          'Tools Available:\n• Daily Counting\n• Stock Counting\n• Employee Attendance Record\n• Dashboard\n\nDepartment: Commercial Team\nModify Admin: Lakshan\nContact: 0772892711'
+        );
+      };
+      const openSettings = () => {
+        openModal(
+          'Application Settings',
+          'Web Application Configuration:\n• Daily Counting: Active\n• Data Sync: Real-time\n• Auto-save: Enabled\n\nConnection Status:\n• Google Apps Script: Connected\n• Database: Online\n• Backup: Daily\n\nPerformance:\n• Response Time: <2 seconds\n• Uptime: 99.9%'
+        );
+      };
+      const openHelp = () => {
+        openModal(
+          'Help & Support',
+          'Getting Started:\n1) Use the buttons above to open Daily Counting, Stock Counting, or Employee Attendance\n2) Follow on-screen steps in each tool\n3) Data saves automatically where applicable\n\nTips:\n• Use Dashboard for reports\n• Check Settings for system status\n\nSupport:\nAdmin: Lakshan\nPhone: 0772892711\nDepartment: Commercial Team'
+        );
+      };
+      const openDashboard = () => {
+        showLoading('Opening Dashboard...');
+        setTimeout(()=>{ window.location.href = DASHBOARD_URL; }, 650);
+      };
+
+      // Theme
+      const updateThemeIcon = () => {
+        const theme = document.documentElement.getAttribute('data-theme') || 'light';
+        if (theme === 'dark') {
+          themeIcon.className = 'fa-solid fa-sun';
+          themeToggle.setAttribute('aria-label', 'Switch to light mode');
+          themeToggle.title = 'Switch to light mode';
+        } else {
+          themeIcon.className = 'fa-solid fa-moon';
+          themeToggle.setAttribute('aria-label', 'Switch to dark mode');
+          themeToggle.title = 'Switch to dark mode';
+        }
+      };
+      const setTheme = (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        updateThemeIcon();
+      };
+      const getPreferredTheme = () => {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light' || saved === 'dark') return saved;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      };
+
+      // Events
+      launchBtn.addEventListener('click', launchApp);
+      launchBtn.addEventListener('pointerdown', (e)=> setButtonRipple(launchBtn, e));
+
+      stockBtn.addEventListener('click', launchStock);
+      stockBtn.addEventListener('pointerdown', (e)=> setButtonRipple(stockBtn, e));
+
+      attendanceBtn.addEventListener('click', launchAttendance);
+      attendanceBtn.addEventListener('pointerdown', (e)=> setButtonRipple(attendanceBtn, e));
+
+      // App icon launches Daily Counting
+      appIcon.addEventListener('click', launchApp);
+      appIcon.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); launchApp(); }});
+      appIcon.addEventListener('pointerdown', (e)=> setButtonRipple(appIcon, e));
+
+      // Image fallback for app icon
+      logoImg.addEventListener('error', ()=>{
+        logoImg.style.display = 'none';
+        appIcon.innerHTML = '<i class="fas fa-cubes fallback-icon" aria-hidden="true"></i>';
+      });
+
+      // Grid actions
+      document.querySelectorAll('.grid-icon').forEach(icon=>{
+        icon.addEventListener('click', ()=>{
+          const action = icon.dataset.action;
+          if(action==='info') return openInfo();
+          if(action==='settings') return openSettings();
+          if(action==='help') return openHelp();
+          if(action==='dashboard') return openDashboard();
+        });
+        icon.addEventListener('keydown', (e)=>{
+          if(e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            icon.click();
+          }
+        });
+      });
+
+      // Modal controls
+      modalClose.addEventListener('click', closeModal);
+      modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('show')) closeModal(); });
+
+      // Theme toggle
+      themeToggle.addEventListener('click', ()=>{
+        const theme = document.documentElement.getAttribute('data-theme') || 'light';
+        setTheme(theme === 'dark' ? 'light' : 'dark');
+      });
+
+      // Initialize theme
+      setTheme(getPreferredTheme());
+
+      // Safety: hide loader on pageshow if it was left open
+      window.addEventListener('pageshow', ()=> hideLoading(), { once:true });
+
+      // App init
+      document.addEventListener('DOMContentLoaded', ()=>{
+        console.log('RMC Commercial Team - Loaded');
+      });
+    })();
+  </script>
+</body>
+</html>
