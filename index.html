@@ -386,7 +386,7 @@
 
       // --- CONFIGURATION ---
       const URLS = {
-        DAILY: 'https://script.google.com/macros/s/AKfycbyZwQrxxXeDnT1llTZb3h7Mj059z4y_3JuKnmQ2p5yIdQXbxttoDblg4coapbSy-gkq/exec',
+        DAILY: 'https://script.google.com/macros/s/AKfycbz5ZUCez9JqyXgKiw79isgrwzDfiBilyHk-dNPglAjQvELyPojNt__xMjR9f5hSGjae/exec', // updated
         STOCK: 'https://script.google.com/macros/s/AKfycbw2y8_iQo-PJsgzlB5j63Lc5b9YU0Twc0b984cHsgfuzndL2B5PLvgPYxtlPJg1D1zQ/exec',
         ATTENDANCE: 'https://rmc.timelabs.in/',
         DASHBOARD: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxRoqXa5h87pfYymuSXbHsuvR90a6Uu5U8JTa6mIbT4LORwb8mUeSRWqYHH14aWtHpcBIlJgXlRY0e/pubhtml',
@@ -478,7 +478,7 @@
           language: 'மொழி',
           bgm: 'பின்னணி இசை',
           bgmNote: 'அமைதியான மெலடி. உலாவி கொள்கையினால் முதல் தொடர்புக்குப் பின் இசை தொடங்கும்.',
-          infoBody: '<strong>{appName}</strong><br/>{description}<br/><br/><strong>நிர்வாகி:</strong> Lakshan • 0772892711',
+          infoBody: '<strong>{appName}</strong><br/>{description}\n<br/><br/><strong>நிர்வாகி:</strong> Lakshan • 0772892711',
           helpBody: 'முக்கிய பொத்தான்களைப் பயன்படுத்தி கருவிகளை விரைவாக தொடங்கவும். டாஷ்போர்டு, தகவல், உதவி, அமைப்புகள் ஆகியவற்றுக்கு கீழே உள்ள ஐகான்களைப் பயன்படுத்தவும்.',
         }
       };
@@ -571,7 +571,7 @@
       const handleFocusTrap = (e) => {
         if (e.key !== 'Tab') return;
         const focusable = Array.from(el.modal.querySelectorAll(focusableSel)).filter(n => !n.disabled);
-        if (!focusable.length) return;
+        if (!focusable length) return;
         const first = focusable[0], last = focusable[focusable.length - 1];
         if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
         else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
