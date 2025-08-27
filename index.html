@@ -59,7 +59,6 @@
 
     *{box-sizing:border-box}
 
-    /* Lock page and center app */
     html, body { height: 100%; }
     body{
       margin:0;
@@ -68,8 +67,10 @@
       background:var(--bg);
       color:var(--text);
       font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      -webkit-tap-highlight-color: transparent;
       overflow: hidden; /* no page scroll */
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       padding: var(--page-pad);
       padding-top: calc(var(--page-pad) + var(--offline-h)); /* prevent overlap with banner */
       padding-bottom: calc(var(--page-pad) + var(--footer-h) + env(safe-area-inset-bottom));
@@ -168,7 +169,7 @@
     }
     .dock-item.ripple .dock-icon::after{ width:220px; height:220px; opacity:0; }
 
-    /* Assign accent and ripple colors per button */
+    /* Assign accent colors per button */
     #launchBtn{ --accent-color: var(--c-daily); --accent-ripple: var(--r-daily); }
     #stockBtn{ --accent-color: var(--c-stock); --accent-ripple: var(--r-stock); }
     #attendanceBtn{ --accent-color: var(--c-attendance); --accent-ripple: var(--r-attendance); }
@@ -199,11 +200,11 @@
       position:fixed;inset:0;display:grid;place-items:center;
       background: var(--bg);
       z-index: 9999;
-      opacity: 0; visibility: hidden;
+      opacity: 0; visibility: hidden; pointer-events: none; /* UI FIX: Prevent blocking clicks during transition */
       clip-path: circle(0% at var(--cx, 50%) var(--cy, 50%));
       transition: clip-path .5s cubic-bezier(0.4, 0, 0.2, 1), opacity .5s, visibility 0s .5s;
     }
-    .loading-overlay.active{ opacity: 1; visibility: visible; transition-delay: 0s; clip-path: circle(150% at var(--cx, 50%) var(--cy, 50%)); }
+    .loading-overlay.active{ opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; clip-path: circle(150% at var(--cx, 50%) var(--cy, 50%)); }
     .loading-box{ display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--text);text-align:center; opacity: 0; transform: translateY(10px); animation: fadeIn .4s .3s forwards; }
     .loading-ring{ width:48px;height:48px; border: 4px solid var(--surface-border); border-top-color: var(--primary); border-radius:50%; animation: spin 1s linear infinite, pulse .8s ease-in-out infinite alternate; }
     .loading-text{ font-size:15px;font-weight:600; }
@@ -223,7 +224,7 @@
       width: 32px; height: 32px; border-radius:8px; display: grid; place-items: center; padding: 0;
       transition: background var(--dur), color var(--dur), border-color var(--dur), transform var(--dur-fast);
     }
-    .modal-close:hover{ background:rgba(0,0,0,.04); color:var(--text); border-color: rgba(0,0,0,.15); }
+    .modal-close:hover{ background:rgba(17,24,39,.04); color:var(--text); border-color: rgba(17,24,39,.15); }
     .modal-close:active{ transform: scale(0.95); }
     .modal-close:focus-visible{ outline: none; box-shadow: var(--ring); }
     html[data-theme="dark"] .modal-close:hover{ background:rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
@@ -277,26 +278,20 @@
 
   <noscript>
     <div style="position:fixed;inset:0;background:#111827;color:#fff;display:flex;align-items:center;justify-content:center;z-index:100000;text-align:center;padding:20px;">
-      This page requires JavaScript to launch applications. Please enable it.
+      This application requires JavaScript. Please enable it in your browser settings.
     </div>
   </noscript>
 
-  <!-- Relaxing BGM with robust fallback chain -->
-  <audio
-    id="bgm"
-    preload="auto"
-    loop
-    crossorigin="anonymous"
-    playsinline
+  <audio id="bgm" preload="auto" loop crossorigin="anonymous" playsinline
     data-srcs="assets/bgm-relax.mp3|assets/bgm.mp3|https://cdn.pixabay.com/download/audio/2021/10/26/audio_2f4d9c74f8.mp3?filename=relaxing-ambient-108163.mp3">
   </audio>
 
   <div class="progress-bar" id="progressBar" aria-hidden="true"></div>
 
-  <div class="loading-overlay" id="loadingOverlay" role="alert" aria-live="polite" aria-busy="true">
+  <div class="loading-overlay" id="loadingOverlay" role="alert" aria-live="assertive" aria-hidden="true">
     <div class="loading-box">
       <div class="loading-ring" aria-hidden="true"></div>
-      <div class="loading-text" id="loadingText">Loading...</div>
+      <div class="loading-text" id="loadingText" role="status">Loading...</div>
     </div>
   </div>
 
@@ -314,18 +309,18 @@
 
   <main class="main-content" id="main" aria-busy="false">
     <div class="top-actions">
-      <div></div>
+      <div></div> <!-- Intentionally empty for alignment -->
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
-        <i class="fa-solid fa-sun" id="themeIcon"></i>
+        <i class="fa-solid fa-sun" id="themeIcon" aria-hidden="true"></i>
       </button>
     </div>
 
-    <section class="hero" aria-label="Application Launcher">
+    <section class="hero" aria-labelledby="appName">
       <div class="app-logo" role="img" aria-label="RMC Logo">
         <img src="https://synques-cdn.s3.ap-south-1.amazonaws.com/rmchemicals.in/images/rmc-logo.png"
              alt="RMC Logo" loading="eager" decoding="async" fetchpriority="high" />
       </div>
-      <h1 class="app-name" data-i18n="appName">RMC Commercial Team</h1>
+      <h1 class="app-name" id="appName" data-i18n="appName">RMC Commercial Team</h1>
       <p class="app-description" data-i18n="description">
         Quickly access Daily Counting, Stock Counting, Employee Attendance, and Dashboard tools.
       </p>
@@ -370,7 +365,7 @@
     </section>
   </main>
 
-  <footer class="watermark" aria-label="Watermark" id="watermark">
+  <footer class="watermark" id="watermark">
     <div class="watermark-left">
       <div>Department: Commercial Team</div>
       <div>Modify Admin: Lakshan</div>
@@ -386,7 +381,7 @@
 
       // --- CONFIGURATION ---
       const URLS = {
-        DAILY: 'https://script.google.com/macros/s/AKfycbz5ZUCez9JqyXgKiw79isgrwzDfiBilyHk-dNPglAjQvELyPojNt__xMjR9f5hSGjae/exec', // updated
+        DAILY: 'https://script.google.com/macros/s/AKfycbz5ZUCez9JqyXgKiw79isgrwzDfiBilyHk-dNPglAjQvELyPojNt__xMjR9f5hSGjae/exec',
         STOCK: 'https://script.google.com/macros/s/AKfycbw2y8_iQo-PJsgzlB5j63Lc5b9YU0Twc0b984cHsgfuzndL2B5PLvgPYxtlPJg1D1zQ/exec',
         ATTENDANCE: 'https://rmc.timelabs.in/',
         DASHBOARD: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxRoqXa5h87pfYymuSXbHsuvR90a6Uu5U8JTa6mIbT4LORwb8mUeSRWqYHH14aWtHpcBIlJgXlRY0e/pubhtml',
@@ -397,9 +392,6 @@
         progressBar: document.getElementById('progressBar'),
         loadingOverlay: document.getElementById('loadingOverlay'),
         loadingText: document.getElementById('loadingText'),
-        launchBtn: document.getElementById('launchBtn'),
-        stockBtn: document.getElementById('stockBtn'),
-        attendanceBtn: document.getElementById('attendanceBtn'),
         modal: document.getElementById('modal'),
         modalClose: document.getElementById('modalClose'),
         modalTitle: document.getElementById('modalTitle'),
@@ -415,90 +407,29 @@
       // --- STATE ---
       const state = {
         lastFocused: null,
+        isPageUnloading: false,
         musicOn: localStorage.getItem('musicOn') === '1',
         userHasInteracted: false,
         currentLang: localStorage.getItem('lang') || 'en',
-        settingsListenerAttached: false,
-        focusTrapAttached: false,
       };
 
       // --- i18n ---
       const I18N = {
-        en: {
-          appName: 'RMC Commercial Team',
-          description: 'Quickly access Daily Counting, Stock Counting, Employee Attendance, and Dashboard tools.',
-          daily: 'Daily Counting', stock: 'Stock Counting', attendance: 'Attendance',
-          info: 'Info', settings: 'Settings', help: 'Help', dashboard: 'Dashboard',
-          offline: 'You’re offline. Some actions may not work.',
-          opening: 'Opening {label}...',
-          unableOpenTitle: 'Unable to open',
-          unableOpenBody: 'We couldn’t open {label}. Please try again or check your network.',
-          offlineTitle: 'You are offline',
-          offlineBody: 'Cannot open {label} while offline. Please check your connection.',
-          settingsTitle: 'Application Settings',
-          settingsIntro: 'Configure your preferences.',
-          language: 'Language',
-          bgm: 'Background Music',
-          bgmNote: 'Relaxing melody. Music starts after your first interaction due to browser policy.',
-          infoBody: '<strong>{appName}</strong><br/>{description}<br/><br/><strong>Admin:</strong> Lakshan • 0772892711',
-          helpBody: 'Use the main buttons to launch primary tools. Use the small icons below for Dashboard, Info, Help, and Settings.',
+        en: { appName: 'RMC Commercial Team', description: 'Quickly access Daily Counting, Stock Counting, Employee Attendance, and Dashboard tools.', daily: 'Daily Counting', stock: 'Stock Counting', attendance: 'Attendance', info: 'Info', settings: 'Settings', help: 'Help', dashboard: 'Dashboard', offline: 'You’re offline. Some actions may not work.', opening: 'Opening {label}...', unableOpenTitle: 'Unable to open', unableOpenBody: 'We couldn’t open {label}. Please try again or check your network.', offlineTitle: 'You are offline', offlineBody: 'Cannot open {label} while offline. Please check your connection.', settingsTitle: 'Application Settings', settingsIntro: 'Configure your preferences.', language: 'Language', bgm: 'Background Music', bgmNote: 'Relaxing melody. Music starts after your first interaction due to browser policy.', infoBody: '<strong>{appName}</strong><br/>{description}<br/><br/><strong>Admin:</strong> Lakshan • 0772892711', helpBody: 'Use the main buttons to launch primary tools. Use the small icons below for Dashboard, Info, Help, and Settings.',
         },
-        si: {
-          appName: 'RMC වාණිජ කණ්ඩායම',
-          description: 'දෛනික ගණන් කිරීම, තොග ගණන් කිරීම, සේවක පැමිණීම සහ ඩෑෂ්බෝඩ් මෙවලම් වෙත ඉක්මනින් පිවිසෙන්න.',
-          daily: 'දෛනික ගණන් කිරීම', stock: 'තොග ගණන් කිරීම', attendance: 'පැමිණීම',
-          info: 'තොරතුරු', settings: 'සැකසීම්', help: 'උදව්', dashboard: 'ඩෑෂ්බෝර්ඩ්',
-          offline: 'ඔබ අන්තර්ජාලයෙන් වෙන් වී ඇත. සමහර ක්‍රියාකාරකම් ක්‍රියා නොවිය හැක.',
-          opening: '{label} ආරම්භ වෙමින්...',
-          unableOpenTitle: 'විවෘත කළ නොහැක',
-          unableOpenBody: '{label} විවෘත කළ නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න හෝ ඔබගේ ජාලය පරීක්ෂා කරන්න.',
-          offlineTitle: 'ඔබ අන්තර්ජාලයෙන් වෙන් වී ඇත',
-          offlineBody: 'අන්තර්ජාලයෙන් වෙන්ව ඇති විට {label} විවෘත කළ නොහැක. කරුණාකර සම්බන්ධතාවය පරීක්ෂා කරන්න.',
-          settingsTitle: 'යෙදුම් සැකසීම්',
-          settingsIntro: 'ඔබගේ ප්‍රියතම සැකසුම් සකසන්න.',
-          language: 'භාෂාව',
-          bgm: 'පසුබිම් සංගීතය',
-          bgmNote: 'සන්සුන් සංගීතය. බ්‍රව්සර ප්‍රතිපත්තිය හේතුවෙන් ඔබගේ පළමු ක්‍රියාවෙන් පසු සංගීතය ආරම්භ වේ.',
-          infoBody: '<strong>{appName}</strong><br/>{description}<br/><br/><strong>පරිපාලක:</strong> Lakshan • 0772892711',
-          helpBody: 'ප්‍රධාන බොත්තම් භාවිතා කර මූලික මෙවලම් ඉක්මනින් අරඹන්න. ඩෑෂ්බෝඩ්, තොරතුරු, උදව්, සැකසීම් සඳහා පහත අයිකන භාවිතා කරන්න.',
+        si: { appName: 'RMC වාණිජ කණ්ඩායම', description: 'දෛනික ගණන් කිරීම, තොග ගණන් කිරීම, සේවක පැමිණීම සහ ඩෑෂ්බෝඩ් මෙවලම් වෙත ඉක්මනින් පිවිසෙන්න.', daily: 'දෛනික ගණන් කිරීම', stock: 'තොග ගණන් කිරීම', attendance: 'පැමිණීම', info: 'තොරතුරු', settings: 'සැකසීම්', help: 'උදව්', dashboard: 'ඩෑෂ්බෝර්ඩ්', offline: 'ඔබ අන්තර්ජාලයෙන් වෙන් වී ඇත. සමහර ක්‍රියාකාරකම් ක්‍රියා නොවිය හැක.', opening: '{label} ආරම්භ වෙමින්...', unableOpenTitle: 'විවෘත කළ නොහැක', unableOpenBody: '{label} විවෘත කළ නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න හෝ ඔබගේ ජාලය පරීක්ෂා කරන්න.', offlineTitle: 'ඔබ අන්තර්ජාලයෙන් වෙන් වී ඇත', offlineBody: 'අන්තර්ජාලයෙන් වෙන්ව ඇති විට {label} විවෘත කළ නොහැක. කරුණාකර සම්බන්ධතාවය පරීක්ෂා කරන්න.', settingsTitle: 'යෙදුම් සැකසීම්', settingsIntro: 'ඔබගේ ප්‍රියතම සැකසුම් සකසන්න.', language: 'භාෂාව', bgm: 'පසුබිම් සංගීතය', bgmNote: 'සන්සුන් සංගීතය. බ්‍රව්සර ප්‍රතිපත්තිය හේතුවෙන් ඔබගේ පළමු ක්‍රියාවෙන් පසු සංගීතය ආරම්භ වේ.', infoBody: '<strong>{appName}</strong><br/>{description}<br/><br/><strong>පරිපාලක:</strong> Lakshan • 0772892711', helpBody: 'ප්‍රධාන බොත්තම් භාවිතා කර මූලික මෙවලම් ඉක්මනින් අරඹන්න. ඩෑෂ්බෝඩ්, තොරතුරු, උදව්, සැකසීම් සඳහා පහත අයිකන භාවිතා කරන්න.',
         },
-        ta: {
-          appName: 'RMC வர்த்தக குழு',
-          description: 'தினசரி எண்ணிக்கை, சரக்கு எண்ணிக்கை, பணியாளர் வருகை மற்றும் டாஷ்போர்டு கருவிகளை விரைவாக அணுகவும்.',
-          daily: 'தினசரி எண்ணிக்கை', stock: 'சரக்கு எண்ணிக்கை', attendance: 'வருகை',
-          info: 'தகவல்', settings: 'அமைப்புகள்', help: 'உதவி', dashboard: 'டாஷ்போர்டு',
-          offline: 'நீங்கள் ஆஃப்லைனில் உள்ளீர்கள். சில செயல்கள் இயங்காது.',
-          opening: '{label} திறக்கப்படுகிறது...',
-          unableOpenTitle: 'திறக்க முடியவில்லை',
-          unableOpenBody: '{label} திறக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது உங்கள் நெட்வொர்க் இணைப்பைச் சரிபார்க்கவும்.',
-          offlineTitle: 'நீங்கள் ஆஃப்லைனில் உள்ளீர்கள்',
-          offlineBody: 'ஆஃப்லைனில் இருக்கும் போது {label} திறக்க முடியாது. தயவு செய்து இணைப்பைச் சரிபார்க்கவும்.',
-          settingsTitle: 'பயன்பாட்டு அமைப்புகள்',
-          settingsIntro: 'உங்கள் முன்னுரிமைகளை அமைக்கவும்.',
-          language: 'மொழி',
-          bgm: 'பின்னணி இசை',
-          bgmNote: 'அமைதியான மெலடி. உலாவி கொள்கையினால் முதல் தொடர்புக்குப் பின் இசை தொடங்கும்.',
-          infoBody: '<strong>{appName}</strong><br/>{description}\n<br/><br/><strong>நிர்வாகி:</strong> Lakshan • 0772892711',
-          helpBody: 'முக்கிய பொத்தான்களைப் பயன்படுத்தி கருவிகளை விரைவாக தொடங்கவும். டாஷ்போர்டு, தகவல், உதவி, அமைப்புகள் ஆகியவற்றுக்கு கீழே உள்ள ஐகான்களைப் பயன்படுத்தவும்.',
+        ta: { appName: 'RMC வர்த்தக குழு', description: 'தினசரி எண்ணிக்கை, சரக்கு எண்ணிக்கை, பணியாளர் வருகை மற்றும் டாஷ்போர்டு கருவிகளை விரைவாக அணுகவும்.', daily: 'தினசரி எண்ணிக்கை', stock: 'சரக்கு எண்ணிக்கை', attendance: 'வருகை', info: 'தகவல்', settings: 'அமைப்புகள்', help: 'உதவி', dashboard: 'டாஷ்போர்டு', offline: 'நீங்கள் ஆஃப்லைனில் உள்ளீர்கள். சில செயல்கள் இயங்காது.', opening: '{label} திறக்கப்படுகிறது...', unableOpenTitle: 'திறக்க முடியவில்லை', unableOpenBody: '{label} திறக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும் அல்லது உங்கள் நெட்வொர்க் இணைப்பைச் சரிபார்க்கவும்.', offlineTitle: 'நீங்கள் ஆஃப்லைனில் உள்ளீர்கள்', offlineBody: 'ஆஃப்லைனில் இருக்கும் போது {label} திறக்க முடியாது. தயவு செய்து இணைப்பைச் சரிபார்க்கவும்.', settingsTitle: 'பயன்பாட்டு அமைப்புகள்', settingsIntro: 'உங்கள் முன்னுரிமைகளை அமைக்கவும்.', language: 'மொழி', bgm: 'பின்னணி இசை', bgmNote: 'அமைதியான மெலடி. உலாவி கொள்கையினால் முதல் தொடர்புக்குப் பின் இசை தொடங்கும்.', infoBody: '<strong>{appName}</strong><br/>{description}<br/><br/><strong>நிர்வாகி:</strong> Lakshan • 0772892711', helpBody: 'முக்கிய பொத்தான்களைப் பயன்படுத்தி கருவிகளை விரைவாக தொடங்கவும். டாஷ்போர்டு, தகவல், உதவி, அமைப்புகள் ஆகியவற்றுக்கு கீழே உள்ள ஐகான்களைப் பயன்படுத்தவும்.',
         }
       };
-
       const t = (key) => (I18N[state.currentLang] && I18N[state.currentLang][key]) || I18N.en[key] || key;
-      const tf = (key, params={}) => {
-        let s = t(key);
-        Object.entries(params).forEach(([k,v]) => s = s.split(`{${k}}`).join(v));
-        return s;
-      };
-
+      const tf = (key, params={}) => { let s = t(key); for(const [k,v] of Object.entries(params)) s = s.split(`{${k}}`).join(v); return s; };
       const applyTranslations = () => {
         document.documentElement.lang = state.currentLang;
         document.querySelectorAll('[data-i18n]').forEach(elm => { elm.textContent = t(elm.dataset.i18n); });
         document.querySelectorAll('.grid-item button').forEach(btn => {
-          const action = btn.dataset.action;
-          if (!action) return;
-          const label = t(action);
-          btn.setAttribute('aria-label', label);
-          btn.setAttribute('title', label);
+          const action = btn.dataset.action; if (!action) return;
+          const label = t(action); btn.setAttribute('aria-label', label); btn.setAttribute('title', label);
         });
       };
 
@@ -511,59 +442,54 @@
       const setTheme = (theme) => { document.documentElement.dataset.theme = theme; localStorage.setItem('theme', theme); updateThemeIcon(); };
       const getPreferredTheme = () => localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
-      // --- LAYOUT SYNC ---
+      // --- LAYOUT ---
       const syncLayoutVars = () => {
         const offlineHeight = el.offlineBanner.classList.contains('show') ? el.offlineBanner.offsetHeight : 0;
         const footerHeight = el.watermark.offsetHeight;
-        document.documentElement.style.setProperty('--offline-h', offlineHeight + 'px');
-        document.documentElement.style.setProperty('--footer-h', footerHeight + 'px');
+        document.documentElement.style.setProperty('--offline-h', `${offlineHeight}px`);
+        document.documentElement.style.setProperty('--footer-h', `${footerHeight}px`);
       };
 
       // --- LOADING ---
       const showLoading = (message = 'Loading...', event = null) => {
         el.main.setAttribute('aria-busy', 'true');
+        el.loadingOverlay.setAttribute('aria-hidden', 'false');
         el.loadingText.textContent = message;
-        if (event && (event.clientX || (event.touches && event.touches[0]))) {
+        if (event) {
           const p = event.touches ? event.touches[0] : event;
-          el.loadingOverlay.style.setProperty('--cx', `${p.clientX}px`);
-          el.loadingOverlay.style.setProperty('--cy', `${p.clientY}px`);
+          if (p.clientX || p.clientY) {
+            el.loadingOverlay.style.setProperty('--cx', `${p.clientX}px`);
+            el.loadingOverlay.style.setProperty('--cy', `${p.clientY}px`);
+          }
         } else {
-          el.loadingOverlay.style.removeProperty('--cx');
-          el.loadingOverlay.style.removeProperty('--cy');
+          el.loadingOverlay.style.removeProperty('--cx'); el.loadingOverlay.style.removeProperty('--cy');
         }
         el.loadingOverlay.classList.add('active');
         el.progressBar.style.width = '0%';
         requestAnimationFrame(() => {
-          setTimeout(() => el.progressBar.style.width = '35%', 120);
-          setTimeout(() => el.progressBar.style.width = '75%', 520);
-          setTimeout(() => el.progressBar.style.width = '100%', 1000);
+          setTimeout(() => el.progressBar.style.width = '35%', 100);
+          setTimeout(() => el.progressBar.style.width = '75%', 500);
         });
       };
       const hideLoading = () => {
         el.main.setAttribute('aria-busy', 'false');
+        el.loadingOverlay.setAttribute('aria-hidden', 'true');
+        el.progressBar.style.width = '100%';
         setTimeout(() => {
           el.loadingOverlay.classList.remove('active');
           el.progressBar.style.width = '0%';
-        }, 240);
+        }, 500);
       };
 
       // --- RIPPLE ---
       const addRipple = (btn, e) => {
-        const icon = btn.querySelector('.dock-icon');
-        if (!icon) return;
+        const icon = btn.querySelector('.dock-icon'); if (!icon) return;
         const rect = icon.getBoundingClientRect();
-        let x = rect.width/2, y = rect.height/2;
-        if (e) {
-          const src = e.touches ? e.touches[0] : e;
-          if (typeof src.clientX === 'number') {
-            x = src.clientX - rect.left;
-            y = src.clientY - rect.top;
-          }
-        }
-        icon.style.setProperty('--px', `${x}px`);
-        icon.style.setProperty('--py', `${y}px`);
+        const src = e.touches ? e.touches[0] : e;
+        const x = src.clientX - rect.left;
+        const y = src.clientY - rect.top;
+        icon.style.setProperty('--px', `${x}px`); icon.style.setProperty('--py', `${y}px`);
         btn.classList.remove('ripple'); void icon.offsetWidth; btn.classList.add('ripple');
-        setTimeout(() => btn.classList.remove('ripple'), 650);
       };
 
       // --- MODAL + FOCUS TRAP ---
@@ -571,7 +497,8 @@
       const handleFocusTrap = (e) => {
         if (e.key !== 'Tab') return;
         const focusable = Array.from(el.modal.querySelectorAll(focusableSel)).filter(n => !n.disabled);
-        if (!focusable length) return;
+        // BUG FIX: Corrected typo from 'length' to '.length'
+        if (!focusable.length) { e.preventDefault(); return; }
         const first = focusable[0], last = focusable[focusable.length - 1];
         if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
         else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
@@ -582,50 +509,39 @@
         el.modalBody.innerHTML = html;
         el.modal.classList.add('show');
         el.modal.setAttribute('aria-hidden', 'false');
-        if (!state.focusTrapAttached) {
-          el.modal.addEventListener('keydown', handleFocusTrap);
-          state.focusTrapAttached = true;
-        }
-        setTimeout(() => el.modal.querySelector(focusableSel)?.focus(), 40);
+        el.modal.addEventListener('keydown', handleFocusTrap);
+        setTimeout(() => el.modal.querySelector(focusableSel)?.focus(), 50);
       };
       const closeModal = () => {
         el.modal.classList.remove('show');
         el.modal.setAttribute('aria-hidden', 'true');
-        if (state.lastFocused && typeof state.lastFocused.focus === 'function') state.lastFocused.focus();
+        el.modal.removeEventListener('keydown', handleFocusTrap);
+        state.lastFocused?.focus();
       };
 
       // --- SETTINGS ---
-      const updateSettingsModalTexts = () => {
-        el.modalTitle.textContent = t('settingsTitle');
-        const p = el.modalBody.querySelector('[data-settings="intro"]');
-        const langLabel = el.modalBody.querySelector('[data-settings="lang-label"]');
-        const musicLabel = el.modalBody.querySelector('[data-settings="music-label"]');
-        const musicNote = el.modalBody.querySelector('[data-settings="music-note"]');
-        if (p) p.textContent = t('settingsIntro');
-        if (langLabel) langLabel.textContent = t('language');
-        if (musicLabel) musicLabel.textContent = t('bgm');
-        if (musicNote) musicNote.textContent = t('bgmNote');
-      };
-
       const handleSettingsChange = (e) => {
-        const id = e.target.id;
-        if (id === 'langSelect') {
-          state.currentLang = e.target.value;
+        const target = e.target;
+        if (target.id === 'langSelect') {
+          state.currentLang = target.value;
           localStorage.setItem('lang', state.currentLang);
           applyTranslations();
-          updateSettingsModalTexts();
-        } else if (id === 'musicToggle') {
-          state.musicOn = e.target.checked;
+          // Also update the currently open modal's text
+          el.modalTitle.textContent = t('settingsTitle');
+          el.modalBody.querySelector('[data-settings="intro"]').textContent = t('settingsIntro');
+          el.modalBody.querySelector('[data-settings="lang-label"]').textContent = t('language');
+          el.modalBody.querySelector('[data-settings="music-label"]').textContent = t('bgm');
+          el.modalBody.querySelector('[data-settings="music-note"]').textContent = t('bgmNote');
+        } else if (target.id === 'musicToggle') {
+          state.musicOn = target.checked;
           localStorage.setItem('musicOn', state.musicOn ? '1' : '0');
           if (state.musicOn) startMusic(); else stopMusic();
         }
       };
-
       const openSettings = () => {
         const html = `
-          <div style="display:grid; gap:16px;">
+          <div style="display:grid; gap:16px;" id="settings-form">
             <p data-settings="intro" style="margin:0; color:var(--muted);">${t('settingsIntro')}</p>
-
             <div style="display:grid; gap:6px;">
               <label data-settings="lang-label" for="langSelect" style="font-weight:600;">${t('language')}</label>
               <select id="langSelect">
@@ -634,7 +550,6 @@
                 <option value="ta"${state.currentLang==='ta'?' selected':''}>தமிழ் (Tamil)</option>
               </select>
             </div>
-
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
               <label data-settings="music-label" for="musicToggle" style="font-weight:600;">${t('bgm')}</label>
               <label class="switch">
@@ -642,177 +557,104 @@
                 <span class="slider"></span>
               </label>
             </div>
-
             <small data-settings="music-note" style="color:var(--muted);">${t('bgmNote')}</small>
           </div>
         `;
         openModal(t('settingsTitle'), html);
-        if (!state.settingsListenerAttached) {
-          el.modalBody.addEventListener('change', handleSettingsChange);
-          state.settingsListenerAttached = true;
-        }
+        document.getElementById('settings-form').addEventListener('change', handleSettingsChange);
       };
 
+      // --- INFO / HELP ---
       const openInfo = () => openModal(t('info'), tf('infoBody', { appName: t('appName'), description: t('description') }));
       const openHelp = () => openModal(t('help'), t('helpBody'));
 
-      // --- ACTIONS / NAVIGATION ---
+      // --- NAVIGATION ---
       const safeNavigate = (url, labelKey, event) => {
         const label = t(labelKey);
         if (!navigator.onLine) return openModal(t('offlineTitle'), tf('offlineBody', {label}));
         showLoading(tf('opening', {label}), event);
+        state.isPageUnloading = false;
         const navTimeout = setTimeout(() => {
-          if (document.visibilityState === 'visible') {
+          if (!state.isPageUnloading && document.visibilityState === 'visible') {
             hideLoading();
             openModal(t('unableOpenTitle'), tf('unableOpenBody', {label}));
           }
         }, 8000);
-        setTimeout(() => { window.location.href = url; }, 500);
-        window.addEventListener('pagehide', () => clearTimeout(navTimeout), { once: true });
+        window.addEventListener('beforeunload', () => { state.isPageUnloading = true; clearTimeout(navTimeout); }, { once: true });
+        setTimeout(() => { window.location.href = url; }, 400);
       };
 
-      // Buttons: click + keyboard access (Enter/Space)
-      const bindAction = (btn, handler) => {
-        btn.addEventListener('click', (e) => handler(e));
-        btn.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(e); }
-        });
-      };
-
-      // --- MUSIC (robust, fallback chain + autoplay unlock) ---
+      // --- BGM ---
       let bgmReady = false;
-      let bgmReadyPromise = null;
-
-      const BGM_SOURCES = (el.bgm.dataset.srcs || '').split('|').filter(Boolean);
-      const DEFAULT_FALLBACK = 'https://cdn.pixabay.com/download/audio/2021/10/26/audio_2f4d9c74f8.mp3?filename=relaxing-ambient-108163.mp3';
-
-      const tryLoadAudio = (url, timeout = 6000) => new Promise((resolve) => {
-        const a = el.bgm;
-        const onReady = () => { cleanup(); resolve(true); };
-        const onError = () => { cleanup(); resolve(false); };
-        const cleanup = () => {
-          a.removeEventListener('canplaythrough', onReady);
-          a.removeEventListener('loadeddata', onReady);
-          a.removeEventListener('loadedmetadata', onReady);
-          a.removeEventListener('error', onError);
-          clearTimeout(to);
-        };
-        a.src = url;
-        a.load();
-        a.addEventListener('canplaythrough', onReady, { once: true });
-        a.addEventListener('loadeddata', onReady, { once: true });
-        a.addEventListener('loadedmetadata', onReady, { once: true });
-        a.addEventListener('error', onError, { once: true });
-        const to = setTimeout(onError, timeout);
-      });
-
       const setupBgm = async () => {
-        const candidates = BGM_SOURCES.length ? BGM_SOURCES : [DEFAULT_FALLBACK];
-        for (const url of candidates) {
-          const ok = await tryLoadAudio(url);
-          if (ok) { bgmReady = true; return true; }
+        const sources = (el.bgm.dataset.srcs || '').split('|').filter(Boolean);
+        for (const url of sources) {
+          try {
+            el.bgm.src = url;
+            await el.bgm.load();
+            bgmReady = true; return;
+          } catch (err) { console.warn(`BGM failed to load: ${url}`); }
         }
-        // ensure some source even if all failed
-        await tryLoadAudio(DEFAULT_FALLBACK);
-        bgmReady = true;
-        return true;
-      };
-
-      const startMusic = async () => {
-        if (!state.musicOn) return;
-        if (!bgmReady) {
-          if (!bgmReadyPromise) bgmReadyPromise = setupBgm();
-          await bgmReadyPromise;
-        }
-        try {
-          el.bgm.volume = 0.35;
-          await el.bgm.play();
-        } catch (err) {
-          // Autoplay blocked until user gesture; will retry on first interaction.
-        }
-      };
-
-      const stopMusic = () => {
-        el.bgm.pause();
-        // keep position if user toggles off/on; reset if you prefer: el.bgm.currentTime = 0;
-      };
-
-      // If current audio stalls/errors later, try to re-setup and resume
-      const recoverBgm = async () => {
         bgmReady = false;
-        bgmReadyPromise = setupBgm();
-        await bgmReadyPromise;
-        if (state.musicOn && state.userHasInteracted) {
-          try { await el.bgm.play(); } catch(_) {}
+      };
+      const startMusic = async () => {
+        if (!state.musicOn || !state.userHasInteracted) return;
+        if (!bgmReady) await setupBgm();
+        if (bgmReady && el.bgm.paused) {
+          try { el.bgm.volume = 0.35; await el.bgm.play(); } catch (err) { /* Autoplay was blocked */ }
         }
       };
-      el.bgm.addEventListener('error', recoverBgm);
-      el.bgm.addEventListener('stalled', recoverBgm);
+      const stopMusic = () => el.bgm.pause();
+      el.bgm.addEventListener('error', () => { bgmReady = false; console.error('BGM error, will try to reload on next play.'); });
 
-      const handleFirstInteraction = () => {
-        if (state.userHasInteracted) return;
-        state.userHasInteracted = true;
-        startMusic();
+      // --- EVENT BINDING ---
+      const bindAction = (btn, handler) => {
+        btn.addEventListener('click', handler);
+        btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(e); }});
       };
-
-      // --- INIT ---
       const init = () => {
         setTheme(getPreferredTheme());
         applyTranslations();
-        updateThemeIcon();
-
-        // Bind main actions
-        bindAction(el.launchBtn, (e) => { addRipple(el.launchBtn, e); safeNavigate(URLS.DAILY, 'daily', e); });
-        bindAction(el.stockBtn, (e) => { addRipple(el.stockBtn, e); safeNavigate(URLS.STOCK, 'stock', e); });
-        bindAction(el.attendanceBtn, (e) => { addRipple(el.attendanceBtn, e); safeNavigate(URLS.ATTENDANCE, 'attendance', e); });
-
+        // Main actions
+        document.querySelectorAll('.dock-item').forEach(btn => {
+            let handler;
+            if (btn.id === 'launchBtn') handler = (e) => safeNavigate(URLS.DAILY, 'daily', e);
+            else if (btn.id === 'stockBtn') handler = (e) => safeNavigate(URLS.STOCK, 'stock', e);
+            else if (btn.id === 'attendanceBtn') handler = (e) => safeNavigate(URLS.ATTENDANCE, 'attendance', e);
+            if(handler) bindAction(btn, (e) => { addRipple(btn, e); handler(e); });
+        });
         // Grid actions
         document.querySelectorAll('.grid-item button').forEach(btn => {
           const action = btn.dataset.action;
           if (action === 'settings') bindAction(btn, openSettings);
-          if (action === 'info') bindAction(btn, openInfo);
-          if (action === 'help') bindAction(btn, openHelp);
-          if (action === 'dashboard') bindAction(btn, (e) => safeNavigate(URLS.DASHBOARD, 'dashboard', e));
+          else if (action === 'info') bindAction(btn, openInfo);
+          else if (action === 'help') bindAction(btn, openHelp);
+          else if (action === 'dashboard') bindAction(btn, (e) => safeNavigate(URLS.DASHBOARD, 'dashboard', e));
         });
-
-        // Theme toggle
-        el.themeToggle.addEventListener('click', () => {
-          const cur = document.documentElement.dataset.theme || 'light';
-          setTheme(cur === 'dark' ? 'light' : 'dark');
-        });
-
-        // Modal close
+        // Theme and Modal
+        el.themeToggle.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
         el.modalClose.addEventListener('click', closeModal);
         el.modal.addEventListener('click', (e) => { if (e.target === el.modal) closeModal(); });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && el.modal.classList.contains('show')) closeModal(); });
-
-        // Offline banner
-        const setOfflineBanner = () => {
-          el.offlineBanner.classList.toggle('show', !navigator.onLine);
-          syncLayoutVars();
-        };
-        window.addEventListener('online', setOfflineBanner);
-        window.addEventListener('offline', setOfflineBanner);
-        setOfflineBanner();
-
-        // Keep layout synced on resize
+        // Network status
+        const setOfflineBanner = () => { el.offlineBanner.classList.toggle('show', !navigator.onLine); syncLayoutVars(); };
+        window.addEventListener('online', setOfflineBanner); window.addEventListener('offline', setOfflineBanner);
+        // Layout and BGM
         window.addEventListener('resize', syncLayoutVars);
-        syncLayoutVars();
+        window.addEventListener('pageshow', (e) => { if (e.persisted) { state.isPageUnloading = false; hideLoading(); } });
+        const onFirstInteraction = () => {
+          state.userHasInteracted = true;
+          startMusic();
+          ['pointerdown', 'keydown'].forEach(evt => document.body.removeEventListener(evt, onFirstInteraction, { capture: true }));
+        };
+        ['pointerdown', 'keydown'].forEach(evt => document.body.addEventListener(evt, onFirstInteraction, { once: true, capture: true }));
 
-        // Hide loader if returning via bfcache
-        window.addEventListener('pageshow', (e) => { if (e.persisted) hideLoading(); });
-
-        // Prepare BGM sources early
-        bgmReadyPromise = setupBgm();
-
-        // First interaction for BGM (autoplay policy)
-        ['pointerdown', 'keydown'].forEach(evt => {
-          document.body.addEventListener(evt, handleFirstInteraction, { once: true, capture: true });
-        });
+        setOfflineBanner(); // Initial check
+        syncLayoutVars(); // Initial sync
+        setupBgm(); // Prepare BGM early
       };
 
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-      else init();
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
     })();
   </script>
 </body>
